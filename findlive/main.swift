@@ -17,18 +17,36 @@ import ScriptingBridge
     @objc optional var properties: NSDictionary {get}
 }
 
+let liveOption = "+live"
+let acousticOption = "+acoustic"
+
 let iTunesApp: AnyObject = SBApplication(bundleIdentifier: "com.apple.iTunes")!
 let trackDict = iTunesApp.currentTrack!().properties as Dictionary
 // if nil then no current track
 if (trackDict["name"] != nil) {
     let songName = trackDict["name"] as! String
     let artist = trackDict["artist"] as! String
+    var searchOption = liveOption
+    
+    for argument in CommandLine.arguments {
+        switch argument {
+        case "-a":
+            searchOption = acousticOption
+            print("[-a] search acoustic")
+        case "-l":
+            searchOption = liveOption
+            print("[-l] search live")
+        default:
+            searchOption = liveOption
+            print("default live")
+        }
+    }
     
     var searchUrl = "https://www.youtube.com/results?search_query="
     searchUrl.append(artist.replacingOccurrences(of: " ", with: "+"))
     searchUrl.append("+")
     searchUrl.append(songName.replacingOccurrences(of: " ", with: "+"))
-    searchUrl.append("+live")
+    searchUrl.append(searchOption)
     
     if let url = URL(string: searchUrl) {
         // open youtube search in default browser
