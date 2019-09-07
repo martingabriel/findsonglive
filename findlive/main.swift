@@ -17,8 +17,9 @@ import ScriptingBridge
     @objc optional var properties: NSDictionary {get}
 }
 
-let liveOption = "+live"
-let acousticOption = "+acoustic"
+let optionLive = "+live"
+let optionAccoustic = "+accoustic"
+let optionCover = "+cover"
 
 let iTunesApp: AnyObject = SBApplication(bundleIdentifier: "com.apple.iTunes")!
 let trackDict = iTunesApp.currentTrack!().properties as Dictionary
@@ -26,18 +27,21 @@ let trackDict = iTunesApp.currentTrack!().properties as Dictionary
 if (trackDict["name"] != nil) {
     let songName = trackDict["name"] as! String
     let artist = trackDict["artist"] as! String
-    var searchOption = liveOption
+    var searchOption = optionLive
     
     for argument in CommandLine.arguments {
         switch argument {
         case "-a":
-            searchOption = acousticOption
+            searchOption = optionAccoustic
             print("[-a] search acoustic")
+        case "-c":
+            searchOption = optionCover
+            print("[-c] search cover")
         case "-l":
-            searchOption = liveOption
+            searchOption = optionLive
             print("[-l] search live")
         default:
-            searchOption = liveOption
+            searchOption = optionLive
             print("default live")
         }
     }
