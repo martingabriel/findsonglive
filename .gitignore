@@ -6,3 +6,5 @@ findlive\.xcodeproj/xcshareddata/xcschemes/findlive\.xcscheme
 findlive\.xcodeproj/xcuserdata/martingabriel\.xcuserdatad/xcschemes/xcschememanagement\.plist
 
 *.icloud
+
+*.xcsettings

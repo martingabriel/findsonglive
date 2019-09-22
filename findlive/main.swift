@@ -17,46 +17,65 @@ import ScriptingBridge
     @objc optional var properties: NSDictionary {get}
 }
 
+// search constants
 let optionLive = "+live"
 let optionAccoustic = "+accoustic"
 let optionCover = "+cover"
+let optionPiano = "+piano"
+let searchQuery = "https://www.youtube.com/results?search_query="
 
+// track info
 let iTunesApp: AnyObject = SBApplication(bundleIdentifier: "com.apple.iTunes")!
 let trackDict = iTunesApp.currentTrack!().properties as Dictionary
-// if nil then no current track
-if (trackDict["name"] != nil) {
-    let songName = trackDict["name"] as! String
-    let artist = trackDict["artist"] as! String
-    var searchOption = optionLive
+
+if let songName = trackDict["name"], let artist = trackDict["artist"] {
+    var searchOptions = [String]()
     
+    // get CLI arguments (search options)
     for argument in CommandLine.arguments {
-        switch argument {
-        case "-a":
-            searchOption = optionAccoustic
-            print("[-a] search acoustic")
-        case "-c":
-            searchOption = optionCover
-            print("[-c] search cover")
-        case "-l":
-            searchOption = optionLive
-            print("[-l] search live")
-        default:
-            searchOption = optionLive
-            print("default live")
+        if CommandLine.arguments.count > 1 {
+            switch argument {
+                case "-a":
+                    searchOptions.append(optionAccoustic)
+                    print("[-a] search acoustic")
+                case "-c":
+                    searchOptions.append(optionCover)
+                    print("[-c] search cover")
+                case "-l":
+                    searchOptions.append(optionLive)
+                    print("[-l] search live")
+                case "-p":
+                    searchOptions.append(optionPiano)
+                    print("[-p] search piano")
+                default:
+                    // undefined option
+                    print("\(argument) is undefined parameter.")
+            }
+        } else {
+            searchOptions.append(optionLive)
+            print("[-l] default search live")
         }
     }
     
-    var searchUrl = "https://www.youtube.com/results?search_query="
-    searchUrl.append(artist.replacingOccurrences(of: " ", with: "+"))
+    // search url
+    var searchUrl = searchQuery
+    searchUrl.append((artist as AnyObject).replacingOccurrences(of: " ", with: "+"))
     searchUrl.append("+")
-    searchUrl.append(songName.replacingOccurrences(of: " ", with: "+"))
-    searchUrl.append(searchOption)
+    searchUrl.append((songName as AnyObject).replacingOccurrences(of: " ", with: "+"))
     
+    // add search options
+    for searchOption in searchOptions {
+        searchUrl.append(searchOption)
+    }
+    
+    // open youtube search in default browser
     if let url = URL(string: searchUrl) {
-        // open youtube search in default browser
         if NSWorkspace.shared.open(url) {
-            print("Youtube search with song " + songName + " was opened.")
+            print("Youtube search with song \(songName) was opened.")
             
         }
     }
+} else {
+    // no currenly playing track
+    print("No currently playing track in iTunes.")
 }
