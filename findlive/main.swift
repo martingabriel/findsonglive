@@ -12,11 +12,6 @@ import Foundation
 import Cocoa
 import ScriptingBridge
 
-@objc protocol iTunesApplication {
-    @objc optional func currentTrack()-> AnyObject
-    @objc optional var properties: NSDictionary {get}
-}
-
 // search constants
 let optionLive = "+live"
 let optionAccoustic = "+accoustic"
@@ -24,11 +19,36 @@ let optionCover = "+cover"
 let optionPiano = "+piano"
 let searchQuery = "https://www.youtube.com/results?search_query="
 
-// track info
+// iTunes & Spotify applications
 let iTunesApp: AnyObject = SBApplication(bundleIdentifier: "com.apple.iTunes")!
-let trackDict = iTunesApp.currentTrack!().properties as Dictionary
+let spotifyApp: AnyObject = SBApplication(bundleIdentifier: "com.spotify.client")!
 
-if let songName = trackDict["name"], let artist = trackDict["artist"] {
+var SongName : AnyObject?
+var Artist : AnyObject?
+
+if let iTunesRunning = iTunesApp.isRunning {
+    print("iTunes app running: \(iTunesRunning)")
+    
+    if iTunesRunning {
+        let trackDict = iTunesApp.currentTrack!().properties as Dictionary
+        
+        if let songname = trackDict["name"], let artist = trackDict["artist"] {
+            SongName = songname as AnyObject
+            Artist = artist as AnyObject
+        }
+    }
+}
+
+if let spotifyRunning = spotifyApp.isRunning {
+    print("Spotify app running: \(spotifyRunning)")
+    
+    if spotifyRunning {
+        SongName = spotifyApp.currentTrack!.name as AnyObject
+        Artist = spotifyApp.currentTrack!.artist as AnyObject
+    }
+}
+
+if let songName = SongName, let artist = Artist {
     var searchOptions = [String]()
     
     // get CLI arguments (search options)
