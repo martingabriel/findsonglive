@@ -2,7 +2,7 @@
 //  main.swift
 //  findlive
 //
-//  little utility to open browser with youtube search of currently playing song in iTunes
+//  little utility to open browser with youtube search of currently playing song in your music player
 //
 //  Created by Martin Gabriel on 03/08/2019.
 //  Copyright © 2019 Martin Gabriel. All rights reserved.
@@ -13,10 +13,10 @@ import Cocoa
 import ScriptingBridge
 
 // search constants
-let optionLive = "+live"
-let optionAccoustic = "+accoustic"
-let optionCover = "+cover"
-let optionPiano = "+piano"
+let optionLive = "live"
+let optionAcoustic = "acoustic"
+let optionCover = "cover"
+let optionPiano = "piano"
 let searchQuery = "https://www.youtube.com/results?search_query="
 
 // iTunes & Spotify applications
@@ -32,6 +32,7 @@ if let iTunesRunning = iTunesApp.isRunning {
     if iTunesRunning {
         let trackDict = iTunesApp.currentTrack!().properties as Dictionary
         
+        // get song name and artist from iTunes
         if let songname = trackDict["name"], let artist = trackDict["artist"] {
             SongName = songname as AnyObject
             Artist = artist as AnyObject
@@ -42,6 +43,7 @@ if let iTunesRunning = iTunesApp.isRunning {
 if let spotifyRunning = spotifyApp.isRunning {
     print("Spotify app running: \(spotifyRunning)")
     
+    // get song name and artist from Spotify
     if spotifyRunning {
         SongName = spotifyApp.currentTrack!.name as AnyObject
         Artist = spotifyApp.currentTrack!.artist as AnyObject
@@ -56,7 +58,7 @@ if let songName = SongName, let artist = Artist {
         if CommandLine.arguments.count > 1 {
             switch argument {
                 case "-a":
-                    searchOptions.append(optionAccoustic)
+                    searchOptions.append(optionAcoustic)
                     print("[-a] search acoustic")
                 case "-c":
                     searchOptions.append(optionCover)
@@ -77,14 +79,15 @@ if let songName = SongName, let artist = Artist {
         }
     }
     
-    // search url
+    // init search url
     var searchUrl = searchQuery
     searchUrl.append((artist as AnyObject).replacingOccurrences(of: " ", with: "+"))
     searchUrl.append("+")
     searchUrl.append((songName as AnyObject).replacingOccurrences(of: " ", with: "+"))
     
-    // add search options
+    // add search options to search url
     for searchOption in searchOptions {
+        searchUrl.append("+");
         searchUrl.append(searchOption)
     }
     
@@ -97,5 +100,5 @@ if let songName = SongName, let artist = Artist {
     }
 } else {
     // no currenly playing track
-    print("No currently playing track in iTunes.")
+    print("No currently playing track in iTunes or Spotify.")
 }
